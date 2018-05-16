@@ -3,6 +3,7 @@
 		<div class="field">
 			<label class="label">Start Date</label>
 			<datepicker
+				v-model="startDateSelected"
 				placeholder="M/dd/yyyy"
 				input-class="input"
 				wrapper-class="control"
@@ -12,24 +13,53 @@
 		<div class="field">
 			<label class="label">Number of days</label>
 			<div class="control">
-				<input class="input" type="number" value="0" min="0" placeholder="0">
+				<input
+					v-model="numberOfDaysSelected"
+					class="input"
+					type="number"
+					value="0"
+					min="0" placeholder="0">
 			</div>
 		</div>
 		<div class="field">
 			<label class="label">Country Code</label>
 			<div class="control">
-				<input class="input" type="text" placeholder="Valid codes: US, ES">
+				<input
+					v-model="countryCodeSelected"
+					class="input"
+					type="text"
+					placeholder="Valid codes: US, ES">
 			</div>
 		</div>
+		<button class="button is-success" @click="sendData">Generate!</button>
 	</div>
 </template>
 
 <script>
+import { Bus } from '../main'
 import Datepicker from 'vuejs-datepicker'
 
 export default {
+	data () {
+		return {
+			startDateSelected: '',
+			numberOfDaysSelected: 0,
+			countryCodeSelected: ''
+		}
+	},
 	components: {
 		Datepicker
+	},
+	methods: {
+		sendData () {
+			Bus.$emit('datasent',
+				{
+					startDateSelected: this.startDateSelected,
+					numberOfDaysSelected: this.numberOfDaysSelected,
+					countryCodeSelected: this.countryCodeSelected
+				}
+			)
+		}
 	}
 }
 </script>

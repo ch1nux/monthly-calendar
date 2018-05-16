@@ -10,7 +10,6 @@
 				<div class="column">
 					<div class="box">
 						<monthly-calendar></monthly-calendar>
-						<monthly-calendar></monthly-calendar>
 					</div>
 				</div>
 			</div>
@@ -31,24 +30,6 @@ export default {
 </script>
 
 <style lang="sass">
-@charset "utf-8";
-
-@import "~bulma/sass/utilities/_all"
-
-@import "~bulma/sass/base/_all"
-
-@import "~bulma/sass/elements/box"
-@import "~bulma/sass/elements/button"
-@import "~bulma/sass/elements/container"
-@import "~bulma/sass/elements/form"
-@import "~bulma/sass/elements/table"
-
-@import "~bulma/sass/elements/title"
-
-@import "~bulma/sass/grid/columns"
-
-@import "~bulma/sass/layout/section"
-@import "~bulma/sass/layout/footer"
-
+@import './assets/sass/app'
 </style>
 
