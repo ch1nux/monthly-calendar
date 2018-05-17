@@ -31,7 +31,7 @@
 					placeholder="Valid codes: US, ES">
 			</div>
 		</div>
-		<button class="button is-success" @click="sendData">Generate!</button>
+		<button :class="['button', {'is-static': validate()}]" @click="sendData">Generate!</button>
 	</div>
 </template>
 
@@ -51,6 +51,11 @@ export default {
 		Datepicker
 	},
 	methods: {
+		validate () {
+			return !this.startDateSelected ||
+							!this.numberOfDaysSelected ||
+							!this.countryCodeSelected
+		},
 		sendData () {
 			Bus.$emit('datasent',
 				{
