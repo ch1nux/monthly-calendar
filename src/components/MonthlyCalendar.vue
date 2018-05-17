@@ -1,19 +1,20 @@
 <template>
 	<div v-show="dataReceived">
-		<table class="table is-narrow" cellspacing="1">
+		<table class="table is-narrow" cellspacing="1" v-for="month in monthList">
 			<thead>
 				<tr>
 					<th v-for="day in calendarDays">{{ day }}</th>
 				</tr>
 				<tr>
 					<th colspan="7" class="is-month">
-						{{ monthToStart }} {{ yearToStart }}
+						{{ calendarMonthName(month[0]) }} {{ month[1] }}
 					</th>
 				</tr>
 			</thead>
 			<tbody>
-				<tr v-for="week in weekList">
-					<td v-for="d in week" :class="d.state">{{ d.day }}</td>
+				<tr v-for="week in month[2]">
+				<td v-for="d in week" :class="d.state">{{ d.day }}</td>
+					<!--<td v-for="d in week">{{ d }}</td>-->
 				</tr>
 			</tbody>
 		</table>
@@ -21,10 +22,10 @@
 </template>
 
 <script>
-import { Bus, range } from '../main'
+import { Bus } from '../main'
+import { calendar } from '../Calendar'
 
-	const
-	cal_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+const
 	locale_months = {
 		"ES": ['Enero', 'Febrero', 'Marzo', 'Abril',
 					'Mayo', 'Junio', 'Julio', 'Agosto',
@@ -43,14 +44,8 @@ import { Bus, range } from '../main'
 			return {
 				startDate: '',
 				daysAfterStartDate: 0,
-				countryCode: ''
-			}
-		},
-		methods: {
-			setData(info) {
-				this.startDate = info.startDateSelected
-				this.daysAfterStartDate = info.numberOfDaysSelected
-				this.countryCode = info.countryCodeSelected
+				countryCode: '',
+				monthList: []
 			}
 		},
 		computed: {
@@ -66,68 +61,41 @@ import { Bus, range } from '../main'
 				if (this.dataReceived) {
 					return locale_days[this.countryCode]
 				}
-			},
-			monthToStart () {
-				if (this.dataReceived) {
-					return this.calendarMonths[this.startDate.getMonth()]
-				}
-			},
-			yearToStart () {
-				if (this.dataReceived) {
-					return this.startDate.getFullYear()
-				}
-			},
-			firstDayOfTheMonth () {
-				if (this.dataReceived) {
-					let d = new Date(
-						this.startDate.getFullYear(),	this.startDate.getMonth(), 1
-					)
-					return d.getDay()
-				}
-			},
-			weekList () {
-				if (this.dataReceived) {
-					let D = this.startDate.getDate(),
-							M = this.startDate.getMonth(),
-							Y = this.startDate.getFullYear()
+			}
+		},
+		methods: {
+			generateCalendar (info) {
+				this.startDate = info.startDateSelected
+				this.daysAfterStartDate = info.numberOfDaysSelected
+				this.countryCode = info.countryCodeSelected
 
-					let list = range(
-						1,
-						cal_days_in_month[M] + ((Y % 4 === 0 && M === 1) ? 1 : 0)
-					)
+				let timePast = this.startDate.getTime() + (
+					this.daysAfterStartDate * 24 * 60 * 60 * 1000
+				)
 
-					let firstWeek = list.splice(0, 7 - this.firstDayOfTheMonth)
-					let weeks = []
+				let	endDate = new Date(timePast)
 
-					while (firstWeek.length < 7) {
-						firstWeek.unshift('')
-					}
+				this.monthList = calendar(this.startDate, endDate)
 
-					while (list.length > 0) {
-						weeks.push(list.splice(0, 7))
-					}
-
-					while (weeks[weeks.length - 1].length < 7) {
-						weeks[weeks.length - 1].push('');
-					}
-
-					weeks = weeks.map((week) => {
+				this.monthList = this.monthList.map((month) => {
+					month[2] = month[2].map((week) => {
 						return week.map((day, i) => {
 							let state = (!day) ? 'is-disabled' :
 								(i === 0 || i === 6) ? 'is-weekend' : 'is-normal'
-							return {
-								day, state
-							}
+							return { day, state }
 						})
 					})
+					return month
+				})
 
-					return weeks
-				}
+			},
+			calendarMonthName (n) {
+				return this.calendarMonths[n]
 			}
 		},
 		created () {
 			Bus.$on('datasent', (data) => {
-				this.setData(data)
+				this.generateCalendar(data)
 			})
 		}
 	}
